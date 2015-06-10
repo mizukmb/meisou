@@ -49,7 +49,7 @@ func doMain(c *cli.Context) {
 	fmt.Println("Mental concentration. Let's \"Meisou\"...")
 	for i := sec; i > 0; i-- {
 		timer.ToMinutes(i)
-		fmt.Println(timer.Minutes, ":", timer.Second)
+		fmt.Printf("%.2d:%.2d\n", timer.Minutes, timer.Second)
 		time.Sleep(1 * time.Second)
 	}
 
