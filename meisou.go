@@ -42,6 +42,11 @@ func doMain(c *cli.Context) {
 		fmt.Println(err)
 		return
 	}
+
+	if num > 60 {
+		fmt.Println("Too long!! The Meisou's most suitable time is said during 30 minutes and 60 minutes.")
+		return
+	}
 	sec := num * 60
 	var timer Timer
 	timer.ToMinutes(sec)
