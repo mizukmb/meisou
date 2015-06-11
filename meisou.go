@@ -7,19 +7,10 @@ import (
 	"time"
 
 	"github.com/codegangsta/cli"
+	"github.com/nsf/termbox-go"
 )
 
 const Version string = "0.1.0"
-
-type Timer struct {
-	Second  int
-	Minutes int
-}
-
-func (t *Timer) ToMinutes(sec int) {
-	t.Minutes = sec / 60
-	t.Second = sec % 60
-}
 
 func main() {
 	app := cli.NewApp()
@@ -32,11 +23,47 @@ func main() {
 	app.Run(os.Args)
 }
 
+type Timer struct {
+	Second  int
+	Minutes int
+}
+
+func (t *Timer) ToMinutes(sec int) {
+	t.Minutes = sec / 60
+	t.Second = sec % 60
+}
+
+var timer Timer
+
+func tbprint(x, y int, msg string, fg, bg termbox.Attribute) {
+	for _, c := range msg {
+		termbox.SetCell(x, y, c, fg, bg)
+		x++
+	}
+}
+
+func draw(sec int) {
+	const coldef = termbox.ColorDefault
+	termbox.Clear(coldef, coldef)
+
+	tbprint(0, 0, fmt.Sprintf("Mental concentration. Let's \"Meisou\"..."), coldef, coldef)
+
+	for i := sec; i >= 0; i-- {
+		timer.ToMinutes(i)
+		tbprint(1, 1, fmt.Sprintf("%.2d:%.2d\n", timer.Minutes, timer.Second), coldef, coldef)
+		termbox.Flush()
+		time.Sleep(1 * time.Second)
+	}
+	tbprint(0, 2, fmt.Sprintf("Finished Meisou. press Key `Esc` or `q` to exit."), coldef, coldef)
+	termbox.Flush()
+}
+
 func doMain(c *cli.Context) {
 	if len(os.Args) < 2 {
 		fmt.Println("Please setting time(minutes). ex. \"meisou 3\".")
 		return
 	}
+
 	num, err := strconv.Atoi(os.Args[1])
 	if err != nil {
 		fmt.Println(err)
@@ -47,17 +74,28 @@ func doMain(c *cli.Context) {
 		fmt.Println("Too long!! The Meisou's most suitable time is said during 30 minutes and 60 minutes.")
 		return
 	}
+
 	sec := num * 60
-	var timer Timer
-	timer.ToMinutes(sec)
 
-	fmt.Println("Mental concentration. Let's \"Meisou\"...")
-	for i := sec; i > 0; i-- {
-		timer.ToMinutes(i)
-		fmt.Printf("%.2d:%.2d\n", timer.Minutes, timer.Second)
-		time.Sleep(1 * time.Second)
+	const coldef = termbox.ColorDefault
+	err = termbox.Init()
+	if err != nil {
+		panic(err)
 	}
+	defer termbox.Close()
 
-	fmt.Println("finished")
+	draw(sec)
 
+loop:
+	for {
+		switch ev := termbox.PollEvent(); ev.Type {
+		case termbox.EventKey:
+			if ev.Key == termbox.KeyEsc {
+				break loop
+			}
+			if ev.Ch == 'q' {
+				break loop
+			}
+		}
+	}
 }
