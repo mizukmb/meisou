@@ -48,17 +48,23 @@ func draw(sec int) {
 	const coldef = termbox.ColorDefault
 	termbox.Clear(coldef, coldef)
 
-	startmsg := "Mental concentration. Let's \"Meisou\"..."
-	finishmsg := "Finished Meisou. press Key `Esc` or `q` to exit."
-	tbprint(0, 0, fmt.Sprintf("%s", startmsg), coldef, coldef)
+	startmsg := fmt.Sprintf("Mental concentration. Let's \"Meisou\"...")
+	finishmsg := fmt.Sprintf("Finished Meisou. press Key `Esc` or `q` to exit.")
+
+	w, h := termbox.Size()
+	midx := w / 2
+	midy := h / 2
+
+	tbprint(midx-(len(startmsg)/2), midy-1, startmsg, coldef, coldef)
 
 	for i := sec; i >= 0; i-- {
 		timer.ToMinutes(i)
-		tbprint(1, 1, fmt.Sprintf("%.2d:%.2d\n", timer.Minutes, timer.Second), coldef, coldef)
+		timermsg := fmt.Sprintf("%.2d:%.2d\n", timer.Minutes, timer.Second)
+		tbprint(midx-(len(timermsg)/2), midy, timermsg, coldef, coldef)
 		termbox.Flush()
 		time.Sleep(1 * time.Second)
 	}
-	tbprint(0, 2, fmt.Sprintf("%s", finishmsg), coldef, coldef)
+	tbprint(midx-(len(finishmsg)/2), midy+1, finishmsg, coldef, coldef)
 	termbox.Flush()
 }
 
