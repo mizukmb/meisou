@@ -57,15 +57,19 @@ func draw(sec int) {
 
 	tbprint(midx-(len(startmsg)/2), midy-1, startmsg, coldef, coldef)
 
-	for i := sec; i >= 0; i-- {
-		timer.ToMinutes(i)
-		timermsg := fmt.Sprintf("%.2d:%.2d\n", timer.Minutes, timer.Second)
-		tbprint(midx-(len(timermsg)/2), midy, timermsg, coldef, coldef)
-		termbox.Flush()
-		time.Sleep(1 * time.Second)
+	timer.ToMinutes(sec)
+	timermsg := fmt.Sprintf("%.2d:%.2d\n", timer.Minutes, timer.Second)
+	tbprint(midx-(len(timermsg)/2), midy, timermsg, coldef, coldef)
+	if sec <= 0 {
+		tbprint(midx-(len(finishmsg)/2), midy+1, finishmsg, coldef, coldef)
 	}
-	tbprint(midx-(len(finishmsg)/2), midy+1, finishmsg, coldef, coldef)
 	termbox.Flush()
+}
+
+func termboxEvent(ev chan termbox.Event) {
+	for {
+		ev <- termbox.PollEvent()
+	}
 }
 
 func doMain(c *cli.Context) {
@@ -96,6 +100,32 @@ func doMain(c *cli.Context) {
 
 	draw(sec)
 
+	du := 1
+	tick := time.Tick(1 * time.Second)
+	ev := make(chan termbox.Event)
+
+	go termboxEvent(ev)
+
+loop:
+	for {
+		select {
+		case <-tick:
+			if sec-du >= 0 {
+				draw(sec - du)
+				du++
+			} else {
+				break loop
+			}
+		case event := <-ev:
+			if event.Key == termbox.KeyEsc {
+				return
+			}
+			if event.Ch == 'q' {
+				return
+			}
+		}
+	}
+
 	cmd := exec.Command("say", "\"Finished Meisou. press Key `Esc` or `q` to exit.\"")
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
@@ -107,16 +137,13 @@ func doMain(c *cli.Context) {
 		os.Exit(1)
 	}
 
-loop:
 	for {
-		switch ev := termbox.PollEvent(); ev.Type {
-		case termbox.EventKey:
-			if ev.Key == termbox.KeyEsc {
-				break loop
-			}
-			if ev.Ch == 'q' {
-				break loop
-			}
+		event := termbox.PollEvent()
+		if event.Key == termbox.KeyEsc {
+			return
+		}
+		if event.Ch == 'q' {
+			return
 		}
 	}
 }
