@@ -21,6 +21,10 @@ func main() {
 	app.Usage = "make time of meisou"
 	app.Author = "mizukmb"
 	app.Email = "mizukmb6@gmail.com"
+	app.Flags = []cli.Flag{
+		// cli.BoolFlag(Name: "say, s", Usage: "shaberu in English"),
+		cli.BoolFlag{Name: "say, s", Usage: "shaberu in English."},
+	}
 	app.Action = doMain
 	app.Run(os.Args)
 }
@@ -74,11 +78,11 @@ func termboxEvent(ev chan termbox.Event) {
 
 func doMain(c *cli.Context) {
 	if len(os.Args) < 2 {
-		fmt.Println("Please setting time(minutes). ex. \"meisou 3\".")
+		fmt.Println("Please setting time(minutes). ex. \"meisou [global options] 3\".")
 		return
 	}
 
-	num, err := strconv.Atoi(os.Args[1])
+	num, err := strconv.Atoi(os.Args[2])
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -126,17 +130,18 @@ loop:
 		}
 	}
 
-	cmd := exec.Command("say", "\"Finished Meisou. press Key `Esc` or `q` to exit.\"")
-	var stdout bytes.Buffer
-	cmd.Stdout = &stdout
+	if c.Bool("say") {
+		cmd := exec.Command("say", "\"Finished Meisou. press Key `Esc` or `q` to exit.\"")
+		var stdout bytes.Buffer
+		cmd.Stdout = &stdout
 
-	err = cmd.Run()
+		err = cmd.Run()
 
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
-
 	for {
 		event := termbox.PollEvent()
 		if event.Key == termbox.KeyEsc {
