@@ -4,7 +4,7 @@
 If you want to the meisou while three minutes, please use command.
 
 ```bash
-meisou 3
+meisou [global options] 3
 ```
 
 ## Install
