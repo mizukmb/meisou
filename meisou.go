@@ -12,7 +12,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
-const Version string = "0.1.0"
+const Version string = "1.0.0"
 
 func main() {
 	app := cli.NewApp()
