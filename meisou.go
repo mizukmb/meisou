@@ -22,7 +22,6 @@ func main() {
 	app.Author = "mizukmb"
 	app.Email = "mizukmb6@gmail.com"
 	app.Flags = []cli.Flag{
-		// cli.BoolFlag(Name: "say, s", Usage: "shaberu in English"),
 		cli.BoolFlag{Name: "say, s", Usage: "shaberu in English."},
 	}
 	app.Action = doMain
