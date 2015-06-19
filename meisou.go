@@ -1,7 +1,8 @@
-package main
+package timer
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -69,6 +70,16 @@ func draw(sec int) {
 	termbox.Flush()
 }
 
+func canUseTimer(num int) (bool, error) {
+	if num <= 0 {
+		return false, errors.New(fmt.Sprintf("Cannot use this time:%d.\n You should set time higher than 0.", num))
+	}
+	if num > 60 {
+		return false, errors.New(fmt.Sprintf("Too long this time:%d.\n!! The Meisou's most suitable time is said during 30 minutes and 60 minutes.", num))
+	}
+	return true, nil
+}
+
 func termboxEvent(ev chan termbox.Event) {
 	for {
 		ev <- termbox.PollEvent()
@@ -94,8 +105,9 @@ func doMain(c *cli.Context) {
 		return
 	}
 
-	if num > 60 {
-		fmt.Println("Too long!! The Meisou's most suitable time is said during 30 minutes and 60 minutes.")
+	ok, err := canUseTimer(num)
+	if !ok {
+		fmt.Println(err)
 		return
 	}
 
