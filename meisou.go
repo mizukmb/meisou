@@ -81,7 +81,14 @@ func doMain(c *cli.Context) {
 		return
 	}
 
-	num, err := strconv.Atoi(os.Args[2])
+	var arg int
+	if c.Bool("say") {
+		arg = 2
+	} else {
+		arg = 1
+	}
+
+	num, err := strconv.Atoi(os.Args[arg])
 	if err != nil {
 		fmt.Println(err)
 		return
