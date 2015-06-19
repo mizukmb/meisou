@@ -1,4 +1,5 @@
 # meisou
+[![Build Status](https://travis-ci.org/mizukmb/meisou.svg)](https://travis-ci.org/mizukmb/meisou)
 
 ## Usage
 If you want to the meisou while three minutes, please use command.
